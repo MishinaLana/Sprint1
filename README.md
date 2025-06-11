@@ -180,7 +180,9 @@ Kafka:
 
 Здесь приложите ссылки на документацию API для микросервисов, которые вы спроектировали в первой части проектной работы. Для документирования используйте Swagger/OpenAPI или AsyncAPI.
 
-
+```markdown
+[Документация API](https://github.com/MishinaLana/Sprint1/blob/warmhouse/warmHouseAPI.yaml)
+```
 
 
 # Задание 5. Работа с docker и docker-compose
