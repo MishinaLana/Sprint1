@@ -1,0 +1,413 @@
+openapi: 3.0.3
+info:
+  title: WarmHouse
+  description: API системы "Теплый дом"
+  version: 1.0.0
+
+tags:
+  - name: Device
+    description: Операции для работы с устройствами
+  - name: Scenario
+    description: Управление сценариями автоматизации
+
+paths:
+  /devices/list:
+    get:
+      tags:
+        - Device
+      summary: Получение списка устройств
+      parameters: 
+        - name: homeId
+          in: query
+          description: Идентификатор дома пользователя
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetDevicesList'
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Что-то пошло не так"
+  
+  /devices/{id}/info:
+    get:
+      tags:
+        - Device
+      summary: Получение информации по устройству
+      parameters: 
+        - name: id
+          in: path
+          description: Идентификатор устройства пользователя
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetDeviceInfo'
+        '404':
+          description: Устройство не найдено
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Устройство не найдено"
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Что-то пошло не так"
+
+  /devices/{id}/status:
+    patch:
+      tags:
+        - Device
+      summary: Обновление состояния устройства
+      parameters:
+        - name: id
+          in: path
+          description: Идентификатор устройства
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDeviceStatus'
+      responses:
+        '200':
+          description: Состояние устройства обновлено
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Состояние устройства обновлено"
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Некорректный запрос"
+        '404':
+          description: Устройство не найдено
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Устройство не найдено"
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Что-то пошло не так"
+  
+  /devices/{id}/command:
+    post:
+      tags:
+        - Device
+      summary: Отправка команды устройству
+      parameters:
+        - name: id
+          in: path
+          description: Идентификатор устройства
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendDeviceCommand'
+      responses:
+        '200':
+          description: Команда отправлена
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Команда отправлена устройству"
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Некорректный запрос"
+        '404':
+          description: Устройство не найдено
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Устройство не найдено"
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Что-то пошло не так"
+
+  /scenarios:
+    post:
+      tags:
+        - Scenario
+      summary: Создание нового сценария
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateScenario'
+      responses:
+        '201':
+          description: Сценарий успешно создан
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scenarioId:
+                    type: string
+                    example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                  message:
+                    type: string
+                    example: "Сценарий успешно создан"
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Некорректный запрос"
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Что-то пошло не так"
+
+components:
+  schemas:
+    GetDevicesList:
+      type: array
+      items:
+        type: object
+        required:
+          - id
+          - name
+          - type
+          - vendor
+        properties:
+          id:
+            type: string
+            format: uuid
+            example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+          name:
+            type: string
+            example: "Батарея"
+          type:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+                example: "Радиатор"
+              category:
+                type: string
+                example: "Климат"
+              image:
+                type: string
+                example: "urlforimage.png"
+          vendor:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+                example: "Haier"
+              logo:
+                type: string
+                example: "urlforimage.png"
+          status:
+            type: string
+            example: "active"
+          temperature:
+            type: number
+            example: 22.5
+
+    GetDeviceInfo:
+      type: object
+      required:
+        - deviceName
+        - deviceType
+        - vendor
+        - status
+      properties:
+        deviceName:
+          type: string
+          example: "Батарея"
+        deviceType:
+          type: object
+          required:
+            - name
+          properties:
+            name:
+              type: string
+              example: "Радиатор"
+            category:
+              type: string
+              example: "Климат"
+            image:
+              type: string
+              example: "urlforimage.png"
+        vendor:
+          type: object
+          required:
+            - name
+          properties:
+            name:
+              type: string
+              example: "Haier"
+            logo:
+              type: string
+              example: "urlforimage.png"
+        status:
+            type: string
+            example: "active"
+        temperature:
+            type: number
+            example: 22.5
+
+    UpdateDeviceStatus:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [active, inactive]
+          example: "active"
+        temperature:
+          type: number
+          example: 22.5
+        humidity:
+          type: number
+          example: 45.0
+
+    SendDeviceCommand:
+      type: object
+      required:
+        - command
+      properties:
+        command:
+          type: string
+          description: Тип команды для устройства
+          example: "turnOn"
+        parameters:
+          type: object
+          description: Параметры команды
+          example: {"temperature": 19}
+
+    CreateScenario:
+      type: object
+      required:
+        - userId
+        - deviceId
+        - name
+        - triggerCondition
+      properties:
+        userId:
+          type: string
+          description: ID пользователя
+          example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        deviceId:
+          type: string
+          description: ID устройства
+          example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        name:
+          type: string
+          description: Название сценария
+          example: "Ночное охлаждение"
+        triggerCondition:
+          type: object
+          description: Условия срабатывания сценария в формате JSON
+          example: {"temperature": {"$gt": 20}, "time": {"$eq": "23:00"}}
+        schedule:
+          type: string
+          description: Расписание срабатывания (cron-формат)
+          example: "0 23 * * *"
+        isActive:
+          type: boolean
+          description: Активен ли сценарий
+          example: true
+          
+          
+          
+          
+          
